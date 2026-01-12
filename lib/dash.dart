@@ -1,6 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:weather/home.dart';
+import 'package:weather/postman/postman.dart';
 import 'package:weather/rejection.dart';
 import 'package:weather/service.dart';
 
@@ -40,6 +40,7 @@ class _DashBoardPageState extends State<DashBoardPage> {
           children: [
             HomeScreen(),
             RejectionPage(),
+            PostMan(),
           ],
         ),
       ),
@@ -73,7 +74,7 @@ class _DashBoardPageState extends State<DashBoardPage> {
                               borderRadius: BorderRadius.circular(12),
                             )
                           : null,
-                      child: Icon(Icons.home),
+                      child: Icon( _selectedIndex == 0 ? Icons.home : Icons.home_outlined),
                     ),
                     label: '',
                   ),
@@ -90,10 +91,19 @@ class _DashBoardPageState extends State<DashBoardPage> {
                     ),
                     label: '',
                   ),
-                  // BottomNavigationBarItem(
-                  //   icon: Icon(Icons.map),
-                  //   label: '',
-                  // ),
+                  BottomNavigationBarItem(
+                    icon: Container(
+                      padding: EdgeInsets.all(8),
+                      decoration: _selectedIndex == 2
+                          ? BoxDecoration(
+                              color: back.withAlpha(30),
+                              borderRadius: BorderRadius.circular(12),
+                            )
+                          : null,
+                      child: Icon( _selectedIndex == 2 ? Icons.airplane_ticket : Icons.airplane_ticket_outlined),
+                    ),
+                    label: '',
+                  ),
                   // BottomNavigationBarItem(
                   //   icon: Icon(Icons.person),
                   //   label: '',
