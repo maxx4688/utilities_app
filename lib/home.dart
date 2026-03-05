@@ -17,8 +17,10 @@ class _HomeScreenState extends State<HomeScreen> {
   List country = [];
   List states = [];
   List cities = [];
-  String selectedCountry = 'Select Country';
-  String selectedState = 'Select State';
+  String selectedCountry = 'India';
+  String? selectedState;
+  bool loadState = false;
+  bool loadCity = false;
 
   Future getCountry() async {
     try {
@@ -45,15 +47,27 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future getStates() async {
-    final res = await http.get(
-      Uri.parse(
-        "https://countriesnow.space/api/v0.1/countries/states/q?country=$selectedCountry",
-      ),
-    );
-    if (res.statusCode == 200) {
-      final response = jsonDecode(res.body);
+    try {
       setState(() {
-        states = response['data']['states'];
+        loadState = true;
+      });
+
+      final res = await http.get(
+        Uri.parse(
+          "https://countriesnow.space/api/v0.1/countries/states/q?country=$selectedCountry",
+        ),
+      );
+      if (res.statusCode == 200) {
+        final response = jsonDecode(res.body);
+        setState(() {
+          states = response['data']['states'];
+        });
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      setState(() {
+        loadState = false;
       });
     }
   }
@@ -61,18 +75,37 @@ class _HomeScreenState extends State<HomeScreen> {
   //https://countriesnow.space/api/v0.1/countries/state/cities/q?country=India&state=$state
   // For the cities,
 
+  //DropdownButtonFormField Use this for the drop down to show the countries and the states also the cities
+
   Future getCities() async {
-    final res = await http.get(
-      Uri.parse(
-        "https://countriesnow.space/api/v0.1/countries/state/cities/q?country=$selectedCountry&state=$selectedState",
-      ),
-    );
-    if (res.statusCode == 200) {
-      final response = jsonDecode(res.body);
+    try {
       setState(() {
-        cities = response['data'];
+        loadCity = true;
+      });
+      final res = await http.get(
+        Uri.parse(
+          "https://countriesnow.space/api/v0.1/countries/state/cities/q?country=$selectedCountry&state=$selectedState",
+        ),
+      );
+      if (res.statusCode == 200) {
+        final response = jsonDecode(res.body);
+        setState(() {
+          cities = response['data'];
+        });
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      setState(() {
+        loadCity = false;
       });
     }
+  }
+
+  @override
+  initState() {
+    super.initState();
+    getCountry();
   }
 
   @override
@@ -82,218 +115,168 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Center(
         child: loading
             ? CircularProgressIndicator(color: back, strokeCap: StrokeCap.round)
-            : country.isEmpty
-            ? CupertinoButton(
-                sizeStyle: CupertinoButtonSize.medium,
-                color: back.withAlpha(30),
-                child: Text(
-                  "Get Country",
-                  style: TextStyle(
-                    fontFamily: 'outfit',
-                    fontVariations: [FontVariation('wght', 500)],
-                    fontSize: 16,
-                    color: back,
-                  ),
-                ),
-                onPressed: () {
-                  getCountry();
-                },
-              )
             : Column(
                 children: [
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          selectedCountry,
-                          style: TextStyle(
-                            color: back,
-                            fontFamily: 'outfit',
-                            fontVariations: [FontVariation('wght', 500)],
-                            fontSize: 16,
-                          ),
+                    child: DropdownButtonFormField(
+                      icon: Icon(Icons.keyboard_arrow_down_rounded, color: back),
+                      dropdownColor: blue,
+                      iconSize: 24,
+                      isExpanded: true,
+                      style: TextStyle(
+                        color: back,
+                        fontFamily: 'outfit',
+                        fontVariations: [FontVariation('wght', 500)],
+                        fontSize: 16,
+                      ),
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: back.withAlpha(30),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: back.withAlpha(30)),
                         ),
-                        CupertinoButton(
-                          sizeStyle: CupertinoButtonSize.medium,
-                          color: back.withAlpha(30),
-                          onPressed: () {
-                            showBottomSheet(
-                              context: context,
-                              builder: (context) {
-                                return Container(
-                                  decoration: BoxDecoration(
-                                    color: back,
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: ListView(
-                                    shrinkWrap: true,
-                                    children: List.generate(country.length, (
-                                      index,
-                                    ) {
-                                      final num = (index + 1).toString();
-                                      return ListTile(
-                                        title: Text(
-                                          country[index]['country'],
-                                          style: TextStyle(
-                                            color: navy,
-                                            fontFamily: 'outfit',
-                                            fontVariations: [
-                                              FontVariation('wght', 500),
-                                            ],
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                        leading: CircleAvatar(
-                                          backgroundColor: back.withAlpha(30),
-                                          radius: 20,
-                                          child: Text(
-                                            num,
-                                            style: TextStyle(
-                                              color: navy,
-                                              fontFamily: 'outfit',
-                                              fontVariations: [
-                                                FontVariation('wght', 800),
-                                              ],
-                                              fontSize: 16,
-                                            ),
-                                          ),
-                                        ),
-                                        onTap: () {
-                                          setState(() {
-                                            selectedCountry =
-                                                country[index]['country'];
-                                          });
-                                          getStates();
-                                          Navigator.pop(context);
-                                        },
-                                      );
-                                    }),
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                          child: Text('Change', style: TextStyle(color: back, fontFamily: 'outfit', fontVariations: [FontVariation('wght', 500)], fontSize: 16,),),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: back.withAlpha(30)),
                         ),
-                      ],
+                      ),
+                      value: selectedCountry,
+                      items: country
+                          .map(
+                            (e) => DropdownMenuItem(
+                              value: e['country'],
+                              child: Text(e['country']),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (value) {
+                        setState(() {
+
+                          selectedCountry = value as String;
+                        });
+                        getStates();
+                      },
                     ),
                   ),
                   SizedBox(height: 20.0),
                   if (states.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "States",
-                            style: TextStyle(
-                              color: back,
-                              fontFamily: 'outfit',
-                              fontVariations: [FontVariation('wght', 500)],
-                              fontSize: 16,
+                    loadState
+                        ? CircularProgressIndicator(
+                            color: back,
+                            strokeCap: StrokeCap.round,
+                          )
+                        : Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 25.0,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  "States",
+                                  style: TextStyle(
+                                    color: back,
+                                    fontFamily: 'outfit',
+                                    fontVariations: [
+                                      FontVariation('wght', 500),
+                                    ],
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                Text(
+                                  states.length.toString(),
+                                  style: TextStyle(
+                                    color: back,
+                                    fontFamily: 'outfit',
+                                    fontVariations: [
+                                      FontVariation('wght', 500),
+                                    ],
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          Text(
-                            states.length.toString(),
-                            style: TextStyle(
-                              color: back,
-                              fontFamily: 'outfit',
-                              fontVariations: [FontVariation('wght', 500)],
-                              fontSize: 16,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
                   if (states.isNotEmpty)
-                    Container(
-                      margin: EdgeInsets.symmetric(horizontal: 20.0),
-                      padding: EdgeInsets.symmetric(vertical: 10.0),
-                      decoration: BoxDecoration(
-                        color: back.withAlpha(30),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      height: MediaQuery.of(context).size.height * 0.3,
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: states.length,
-                        itemBuilder: (context, index) {
-                          return ListTile(
-                            minTileHeight: 50,
-                            tileColor: selectedState == states[index]['name']
-                                ? back.withAlpha(30)
-                                : null,
-                            onTap: () {
-                              getCities();
-                              setState(() {
-                                selectedState = states[index]['name'];
-                              });
-                            },
-                            title: Text(
-                              states[index]['name'],
+                    loadState
+                        ? CircularProgressIndicator(
+                            color: back,
+                            strokeCap: StrokeCap.round,
+                          )
+                        : Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                          child: DropdownButtonFormField(
+                              icon: Icon(Icons.keyboard_arrow_down_rounded, color: back),
+                              dropdownColor: blue,
+                              iconSize: 24,
+                              isExpanded: true,
                               style: TextStyle(
                                 color: back,
                                 fontFamily: 'outfit',
                                 fontVariations: [FontVariation('wght', 500)],
                                 fontSize: 16,
                               ),
+                              decoration: InputDecoration(
+                                filled: true,
+                                fillColor: back.withAlpha(30),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide(color: back.withAlpha(30)),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide(color: back.withAlpha(30)),
+                                ),
+                              ),
+                              value: selectedState,
+                              items: states.map((e) => DropdownMenuItem(value: e['name'], child: Text(e['name']))).toList(),
+                              onChanged: (value) {
+                                setState(() {
+                                  selectedState = value as String;
+                                });
+                                getCities();
+                              },
                             ),
-                            leading: CircleAvatar(
-                              backgroundColor: back.withAlpha(30),
-                              radius: 20,
-                              child: Text(
-                                states[index]['state_code'],
+                        ),
+                  SizedBox(height: 20.0),
+                  if (cities.isNotEmpty)
+                    Expanded(
+                      child: Container(
+                        margin: EdgeInsets.symmetric(horizontal: 20.0),
+                        padding: EdgeInsets.symmetric(vertical: 10.0),
+                        decoration: BoxDecoration(
+                          color: back.withAlpha(30),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: cities.length,
+                          itemBuilder: (context, index) {
+                            return ListTile(
+                              minTileHeight: 50,
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        WeatherPage(city: cities[index]),
+                                  ),
+                                );
+                              },
+                              title: Text(
+                                cities[index],
                                 style: TextStyle(
                                   color: back,
                                   fontFamily: 'outfit',
-                                  fontVariations: [FontVariation('wght', 800)],
+                                  fontVariations: [FontVariation('wght', 500)],
                                   fontSize: 16,
                                 ),
                               ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  SizedBox(height: 20.0),
-                  if (cities.isNotEmpty)
-                    Container(
-                      margin: EdgeInsets.symmetric(horizontal: 20.0),
-                      padding: EdgeInsets.symmetric(vertical: 10.0),
-                      decoration: BoxDecoration(
-                        color: back.withAlpha(30),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      height: MediaQuery.of(context).size.height * 0.3,
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: cities.length,
-                        itemBuilder: (context, index) {
-                          return ListTile(
-                            minTileHeight: 50,
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      WeatherPage(city: cities[index]),
-                                ),
-                              );
-                            },
-                            title: Text(
-                              cities[index],
-                              style: TextStyle(
-                                color: back,
-                                fontFamily: 'outfit',
-                                fontVariations: [FontVariation('wght', 500)],
-                                fontSize: 16,
-                              ),
-                            ),
-                          );
-                        },
+                            );
+                          },
+                        ),
                       ),
                     ),
                 ],

@@ -186,9 +186,9 @@ class _PostManState extends State<PostMan> {
               },
             ),
           ),
-          ExpansionTile(
-            iconColor: blue,
-            collapsedIconColor: back,
+          CupertinoExpansionTile(
+            // iconColor: blue,
+            // collapsedIconColor: back,
             title: Text(
               'Headers',
               style: TextStyle(
@@ -197,8 +197,7 @@ class _PostManState extends State<PostMan> {
                 fontVariations: [FontVariation('wght', 500)],
               ),
             ),
-            children: [
-              Container(
+            child: Container(
                 margin: const EdgeInsets.all(15),
                 height: 400,
                 decoration: BoxDecoration(
@@ -206,7 +205,6 @@ class _PostManState extends State<PostMan> {
                   borderRadius: BorderRadius.circular(25),
                 ),
               ),
-              ],
           ),
           if (statusCode != 0)
             Padding(

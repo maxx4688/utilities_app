@@ -37,80 +37,80 @@ class _DashBoardPageState extends State<DashBoardPage> {
               _selectedIndex = index;
             });
           },
-          children: [
-            HomeScreen(),
-            RejectionPage(),
-            PostMan(),
-          ],
+          children: [HomeScreen(), RejectionPage(), PostMan()],
         ),
       ),
       bottomNavigationBar: Container(
-              margin: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
+        margin: const EdgeInsets.all(16),
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
+        child: BottomNavigationBar(
+          currentIndex: _selectedIndex,
+          onTap: (index) {
+            _pageController.animateToPage(
+              index,
+              duration: Duration(milliseconds: 500),
+              curve: Curves.easeInOutCirc,
+            );
+            setState(() {
+              _selectedIndex = index;
+            });
+          },
+          type: BottomNavigationBarType.fixed,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          selectedItemColor: back,
+          unselectedItemColor: back.withAlpha(70),
+          selectedFontSize: 0,
+          unselectedFontSize: 0,
+          items: [
+            BottomNavigationBarItem(
+              icon: Container(
+                padding: EdgeInsets.all(8),
+                decoration: _selectedIndex == 0
+                    ? BoxDecoration(
+                        color: back.withAlpha(30),
+                        borderRadius: BorderRadius.circular(12),
+                      )
+                    : null,
+                child: Icon(
+                  _selectedIndex == 0 ? Icons.home : Icons.home_outlined,
+                ),
               ),
-              child: BottomNavigationBar(
-                currentIndex: _selectedIndex,
-                onTap: (index) {
-                  _pageController.animateToPage(index, duration: Duration(milliseconds: 500), curve: Curves.easeInOutCirc);
-                  setState(() {
-                    _selectedIndex = index;
-                  });
-                },
-                type: BottomNavigationBarType.fixed,
-                backgroundColor: Colors.transparent,
-                elevation: 0,
-                selectedItemColor: back,
-                unselectedItemColor: back.withAlpha(70),
-                selectedFontSize: 0,
-                unselectedFontSize: 0,
-                items: [
-                  BottomNavigationBarItem(
-                    icon: Container(
-                      padding: EdgeInsets.all(8),
-                      decoration: _selectedIndex == 0
-                          ? BoxDecoration(
-                              color: back.withAlpha(30),
-                              borderRadius: BorderRadius.circular(12),
-                            )
-                          : null,
-                      child: Icon( _selectedIndex == 0 ? Icons.home : Icons.home_outlined),
-                    ),
-                    label: '',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Container(
-                      padding: EdgeInsets.all(8),
-                      decoration: _selectedIndex == 1
-                          ? BoxDecoration(
-                              color: back.withAlpha(30),
-                              borderRadius: BorderRadius.circular(12),
-                            )
-                          : null,
-                      child: Icon(Icons.search),
-                    ),
-                    label: '',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Container(
-                      padding: EdgeInsets.all(8),
-                      decoration: _selectedIndex == 2
-                          ? BoxDecoration(
-                              color: back.withAlpha(30),
-                              borderRadius: BorderRadius.circular(12),
-                            )
-                          : null,
-                      child: Icon( _selectedIndex == 2 ? Icons.airplane_ticket : Icons.airplane_ticket_outlined),
-                    ),
-                    label: '',
-                  ),
-                  // BottomNavigationBarItem(
-                  //   icon: Icon(Icons.person),
-                  //   label: '',
-                  // ),
-                ],
+              label: '',
+            ),
+            BottomNavigationBarItem(
+              icon: Container(
+                padding: EdgeInsets.all(8),
+                decoration: _selectedIndex == 1
+                    ? BoxDecoration(
+                        color: back.withAlpha(30),
+                        borderRadius: BorderRadius.circular(12),
+                      )
+                    : null,
+                child: Icon(Icons.search),
               ),
-            )
+              label: '',
+            ),
+            BottomNavigationBarItem(
+              icon: Container(
+                padding: EdgeInsets.all(8),
+                decoration: _selectedIndex == 2
+                    ? BoxDecoration(
+                        color: back.withAlpha(30),
+                        borderRadius: BorderRadius.circular(12),
+                      )
+                    : null,
+                child: Icon(
+                  _selectedIndex == 2
+                      ? Icons.airplane_ticket
+                      : Icons.airplane_ticket_outlined,
+                ),
+              ),
+              label: '',
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
